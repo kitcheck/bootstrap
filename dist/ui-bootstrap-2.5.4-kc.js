@@ -5071,6 +5071,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
                   }
 
                   adjustmentTimeout = $interval(function() {
+                    if (!tooltip || !tooltip.html()) { return; }
                     var currentHeight = angular.isDefined(tooltip.offsetHeight) ? tooltip.offsetHeight : tooltip.prop('offsetHeight');
                     var adjustment = $position.adjustTop(placementClasses, elementPos, initialHeight, currentHeight);
                     if (adjustment) {
