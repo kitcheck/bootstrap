@@ -69,7 +69,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
    * Returns the actual instance of the $tooltip service.
    * TODO support multiple triggers
    */
-  this.$get = ['$window', '$compile', '$timeout', '$document', '$uibPosition', '$interpolate', '$rootScope', '$parse', '$$stackedMap', function($window, $compile, $timeout, $document, $position, $interpolate, $rootScope, $parse, $$stackedMap) {
+  this.$get = ['$window', '$compile', '$interval', '$document', '$uibPosition', '$interpolate', '$rootScope', '$parse', '$$stackedMap', function($window, $compile, $interval, $document, $position, $interpolate, $rootScope, $parse, $$stackedMap) {
     var openedTooltips = $$stackedMap.createNew();
     $document.on('keyup', keypressListener);
 
@@ -160,7 +160,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
               if (!tooltip || !tooltip.html()) { return; }
 
               if (!positionTimeout) {
-                positionTimeout = $timeout(function() {
+                positionTimeout = $interval(function() {
                   var ttPosition = $position.positionElements(element, tooltip, ttScope.placement, appendToBody);
                   var initialHeight = angular.isDefined(tooltip.offsetHeight) ? tooltip.offsetHeight : tooltip.prop('offsetHeight');
                   var elementPos = appendToBody ? $position.offset(element) : $position.position(element);
@@ -177,14 +177,14 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
                     tooltip.addClass(options.placementClassPrefix + ttPosition.placement);
                   }
 
-                  adjustmentTimeout = $timeout(function() {
+                  adjustmentTimeout = $interval(function() {
                     var currentHeight = angular.isDefined(tooltip.offsetHeight) ? tooltip.offsetHeight : tooltip.prop('offsetHeight');
                     var adjustment = $position.adjustTop(placementClasses, elementPos, initialHeight, currentHeight);
                     if (adjustment) {
                       tooltip.css(adjustment);
                     }
                     adjustmentTimeout = null;
-                  }, 0, false);
+                  }, 0, 1, false);
 
                   // first time through tt element will have the
                   // uib-position-measure class or if the placement
@@ -198,7 +198,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
                   lastPlacement = ttPosition.placement;
 
                   positionTimeout = null;
-                }, 0, false);
+                }, 0, 1, false);
               }
             };
 
@@ -230,7 +230,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
                 // Do nothing if the tooltip was already scheduled to pop-up.
                 // This happens if show is triggered multiple times before any hide is triggered.
                 if (!showTimeout) {
-                  showTimeout = $timeout(show, ttScope.popupDelay, false);
+                  showTimeout = $interval(show, ttScope.popupDelay, 1, false);
                 }
               } else {
                 show();
@@ -242,7 +242,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
               if (ttScope.popupCloseDelay) {
                 if (!hideTimeout) {
-                  hideTimeout = $timeout(hide, ttScope.popupCloseDelay, false);
+                  hideTimeout = $interval(hide, ttScope.popupCloseDelay, 1, false);
                 }
               } else {
                 hide();
@@ -271,12 +271,12 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
             function cancelShow() {
               if (showTimeout) {
-                $timeout.cancel(showTimeout);
+                $interval.cancel(showTimeout);
                 showTimeout = null;
               }
 
               if (positionTimeout) {
-                $timeout.cancel(positionTimeout);
+                $interval.cancel(positionTimeout);
                 positionTimeout = null;
               }
             }
@@ -298,7 +298,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
                   // The fade transition in TWBS is 150ms.
                   if (ttScope.animation) {
                     if (!transitionTimeout) {
-                      transitionTimeout = $timeout(removeTooltip, 150, false);
+                      transitionTimeout = $interval(removeTooltip, 150, 1, false);
                     }
                   } else {
                     removeTooltip();
@@ -309,12 +309,12 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
             function cancelHide() {
               if (hideTimeout) {
-                $timeout.cancel(hideTimeout);
+                $interval.cancel(hideTimeout);
                 hideTimeout = null;
               }
 
               if (transitionTimeout) {
-                $timeout.cancel(transitionTimeout);
+                $interval.cancel(transitionTimeout);
                 transitionTimeout = null;
               }
             }
@@ -348,15 +348,15 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
               if (tooltip) {
                 tooltip.remove();
-                
+
                 tooltip = null;
                 if (adjustmentTimeout) {
-                  $timeout.cancel(adjustmentTimeout);
+                  $interval.cancel(adjustmentTimeout);
                 }
               }
 
               openedTooltips.remove(ttScope);
-              
+
               if (tooltipLinkedScope) {
                 tooltipLinkedScope.$destroy();
                 tooltipLinkedScope = null;
