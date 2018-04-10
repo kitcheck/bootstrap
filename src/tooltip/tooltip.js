@@ -161,6 +161,7 @@ angular.module('ui.bootstrap.tooltip', ['ui.bootstrap.position', 'ui.bootstrap.s
 
               if (!positionTimeout) {
                 positionTimeout = $interval(function() {
+                  if (!tooltip || !tooltip.html() || !ttScope) { return; }
                   var ttPosition = $position.positionElements(element, tooltip, ttScope.placement, appendToBody);
                   var initialHeight = angular.isDefined(tooltip.offsetHeight) ? tooltip.offsetHeight : tooltip.prop('offsetHeight');
                   var elementPos = appendToBody ? $position.offset(element) : $position.position(element);
