@@ -12,7 +12,7 @@
     "ignore": [],
     "description": "Native AngularJS (Angular) directives for Bootstrap.",
     "version": "2.5.4-kc",
-    "main": ["./dist/ui-bootstrap-tpls.js"],
+    "main": ["./dist/ui-bootstrap-tpls-2.5.4-kc.js"],
     "dependencies": {
         "angular": ">=1.4.0"
     }
